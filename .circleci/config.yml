@@ -1,34 +1,31 @@
 version: 2
 jobs:
   one:
-    working_directory: ~/circle101
     docker:
       - image: circleci/ruby:2.4.1
     steps:
       - checkout
       - run: echo "A first hello"
-      - run: mkdir -p workspace
-      - run: echo "Trying out workspaces" > workspace/echo-output
+      - run: mkdir -p my_workspace
+      - run: echo "Trying out workspaces" > my_workspace/echo-output
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory
-          root: workspace
+          root: my_workspace
           # Must be relative path from root
           paths:
             - echo-output      
-      - run: sleep 10      
   two:
     docker:
       - image: circleci/ruby:2.4.1
     steps:
       - checkout
       - run: echo "A more familiar hi"  
-      - run: sleep 7
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /tmp/workspace
+          at: my_workspace
 
       - run: |
-          if [[ `cat /tmp/workspace/echo-output` == "Trying out workspaces" ]]; then
+          if [[ $(cat my_workspace/echo-output) == "Trying out workspaces" ]]; then
             echo "It worked!";
           else
             echo "Nope!"; exit 1
